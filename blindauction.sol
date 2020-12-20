@@ -24,7 +24,8 @@ contract BlindAuction{
     address highestBidder;
     uint biddingTime;
     uint revealingTime;
-
+    uint private song;
+    
     modifier duringBidding() {
     require(now <= biddingTime, 'It is not Bidding Time');
     _;
@@ -39,12 +40,13 @@ contract BlindAuction{
     require(now > revealingTime, 'Auction has not been ended yet');
     _;
   }
-    constructor(uint _biddingTime, uint _revealingTime) public{
+    constructor(uint _biddingTime, uint _revealingTime, uint _song) public{
         auctionManager = msg.sender; 
         // auctionManager is the owner, no middlemen
         owner = msg.sender; 
         biddingTime = now + _biddingTime;
         revealingTime = biddingTime + _revealingTime;
+        song = _song;
         
     }
 
@@ -100,13 +102,14 @@ contract BlindAuction{
        refunds[msg.sender] = true;
    }
    
-   function claim() public payable afterRevealing{
+   function claim() public payable afterRevealing returns (uint){
        //set the winner as the song owner
        // winner has the write to transfer ownership to himself
        require(msg.value == secondHighestBid);
        require(msg.sender == highestBidder);
        owner = highestBidder;
        emit OwnerSet(auctionManager, highestBidder);
+       return song;
              
    }
    
