@@ -1,19 +1,18 @@
 pragma solidity >=0.5.0 <0.6.0;
-pragma experimental ABIEncoderV2;
+
 contract BlindAuction{
 
     
     event OwnerSet(address oldOwner, address newOwner);
     event WinnerSet (address winner, uint value);
-    //delete it
-    event hashSet(bytes32 theHash);
-
     
-    // the auctionManager is the owner
+    // the auctionManager is the seller
     address public auctionManager;
-    uint deposit = 100 wei;
+    uint deposit = 500 wei;
+    // the owner is initially the auctionManager
+    address public owner;
     bool isAuctionEnded = false;
-    address private owner;
+
      
     mapping(address => bytes32) public biddings;
     mapping(address => uint) public validBiddings;
@@ -23,31 +22,50 @@ contract BlindAuction{
     uint highestBid;
     uint secondHighestBid;
     address highestBidder;
+    uint biddingTime;
+    uint revealingTime;
 
+    modifier duringBidding() {
+    require(now <= biddingTime, 'It is not Bidding Time');
+    _;
+  }
+  
+   modifier duringRevealing() {
+    require(now > biddingTime && now <= revealingTime, 'It is not Revealing Time');
+    _;
+  }
+  
+   modifier afterRevealing() {
+    require(now > revealingTime, 'Auction has not been ended yet');
+    _;
+  }
     constructor(uint _biddingTime, uint _revealingTime) public{
-        auctionManager = msg.sender;  
+        auctionManager = msg.sender; 
+        // auctionManager is the owner, no middlemen
         owner = msg.sender; 
+        biddingTime = now + _biddingTime;
+        revealingTime = biddingTime + _revealingTime;
         
     }
 
-    function sealBid(uint _value, uint _nonce)private returns (bytes32){
+    function sealBid(uint _value, uint _nonce) private pure returns (bytes32){
         return keccak256(abi.encode(_value, _nonce));
     }
     
     
-    function bid(uint _value, uint _nonce) public payable{
+    function bid(uint _value, uint _nonce) public payable duringBidding{
         // Participant pays bid once
-        require(refunds[msg.sender] == false );
-        require(msg.value == deposit,'deposit shall be equal to the inital deposit');
+        require(refunds[msg.sender] == false, 'Already participated' );
+        require(msg.value == deposit,'Please make sure you pay the deposit');
+        require(msg.sender != auctionManager, 'Auction Manager has no rights to bid');
         bytes32 sealedBid = sealBid(_value, _nonce);
         biddings[msg.sender] = sealedBid;
         refunds[msg.sender] = true;
     
     }
     
-    function reveal(uint _value, uint _nonce) public{
+    function reveal(uint _value, uint _nonce) public duringRevealing{
         // checks for the validity of bids
-        //require(biddings[msg.sender] == sealBid( _value, _nonce));
         // on reveal, each pariticapant will not pay, just reveal the values
         if (biddings[msg.sender] == sealBid(_value, _nonce)){
             if (_value > highestBid){
@@ -62,23 +80,29 @@ contract BlindAuction{
 
     }
     
-    function finalizeAuction()public{
+    function finalizeAuction() public afterRevealing{
+        // auction ends just one time
+        require(isAuctionEnded == false);
         isAuctionEnded = true;
-        // delete it from the map he won't get the deposit back
+        // delete the winner from the map he won't get the deposit back
         delete validBiddings[highestBidder];
         emit WinnerSet(highestBidder, secondHighestBid);
         
     }
    
-   function withdraw() public{
+   function withdraw() public afterRevealing{
        // check if he is not a cheater nor a winner
-       require(validBiddings[msg.sender]!=  uint(0x0));
+       require(validBiddings[msg.sender]!= uint(0x0));
+       require(msg.sender != auctionManager);
+       //check if already refunded
+       require(!refunds[msg.sender]);
        msg.sender.transfer(deposit);
+       refunds[msg.sender] = true;
    }
    
-   function claim() public payable{
+   function claim() public payable afterRevealing{
        //set the winner as the song owner
-       // winner has the write to transfer ownership to anyone
+       // winner has the write to transfer ownership to himself
        require(msg.value == secondHighestBid);
        require(msg.sender == highestBidder);
        owner = highestBidder;
