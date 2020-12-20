@@ -1,9 +1,9 @@
 # Blind Auction 💸
-![Block-Chains][1] ![Ethereum-Solidity][2]  ![Blind-Auctions][4] ![covid-19][3]
+![Block-Chains][1] ![Ethereum-Solidity][2]  ![Blind-Auctions][4] ![Covid-19][3]
 
 [1]: https://img.shields.io/:Block-Chains-whiteGreen.svg?style=round-square
 [2]: https://img.shields.io/:Ethereum-Solidity-yellow.svg?style=round-square
-[3]: https://img.shields.io/:covid-19-red.svg?style=round-square
+[3]: https://img.shields.io/:Covid-19-red.svg?style=round-square
 [4]: https://img.shields.io/:Blind-Auctions-blue.svg?style=round-square
 
 
@@ -33,7 +33,7 @@
 
 ## Code 
 
-``` python
+``` solidity
 
 pragma solidity >=0.5.0 <0.6.0;
 
