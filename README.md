@@ -157,7 +157,9 @@ contract BlindAuction{
 
 
 
-## Bonus Part
+## Bonus Part [_Updated_ ]
+
+
 I assumed the song is a unit datatype, so the owner (manager) delivers it to the contract, at the deployment phase
 
 The `song` is `private`, no one has access for it
@@ -168,11 +170,26 @@ After the auction is ended, the winner can claim the song iff (s)he pays the val
 * It is digital, the owner may has his own copy
 * The winner cannot make sure the returned song is the right one til (s)he pays
 
-### side notes
-* Zero-Knowledge Proof may be a valid solution
+<s> 
+<h3> Side Notes <h3>
+<pr>
+Zero-Knowledge Proof may be a valid solution
+</pr>
+</s>
 
+---
 
+> Since time is almost over, it worth it to mention that ***ERC701*** is a suitable solution for the addressed problems
+ 
 
+**ERC701** is a unique token that cannot be duplicated. Thus, we have just one song to be transferred (not copied).
+
+#### Bonus References:
+* [cryptozombies.io, chapter 5][10]
+* [Openzeppelin Docs - ERC701][17]
+* [erc721][18]
+* [What is an ERC-721 Token?][19]
+* [ERC721 Token Transfers and Approvals][20]
 
 ---
 
@@ -198,3 +215,7 @@ Blockchain][16]
 [14]: https://ethereum.stackexchange.com/questions/19546/how-use-payable-function-with-browser-solidity
 [15]: https://ethereum.stackexchange.com/questions/55688/solidity-transfer-function-not-work
 [16]: https://eprint.iacr.org/2018/704.pdf
+[17]: https://docs.openzeppelin.com/contracts/2.x/erc721
+[18]: http://erc721.org/
+[19]: https://www.youtube.com/watch?v=HTm-1JtI0fA
+[20]:https://ethereum.stackexchange.com/questions/89761/erc721-token-transfers-and-approvals
