@@ -51,7 +51,7 @@ contract BlindAuction{
     }
 
     function sealBid(uint _value, uint _nonce) private pure returns (bytes32){
-        return keccak256(abi.encode(_value, _nonce));
+        return keccak256(abi.encode(_value, _nonce, msg.sender));
     }
     
     
@@ -69,7 +69,8 @@ contract BlindAuction{
     function reveal(uint _value, uint _nonce) public duringRevealing{
         // checks for the validity of bids
         // on reveal, each pariticapant will not pay, just reveal the values
-        if (biddings[msg.sender] == sealBid(_value, _nonce)){
+        require(msg.sender != auctionManager);
+        if (biddings[msg.sender] == sealBid(_value, _nonce, msg.sender)){
             if (_value > highestBid){
             secondHighestBid = highestBid;
             highestBid = _value;
