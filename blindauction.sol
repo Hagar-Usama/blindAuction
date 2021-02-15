@@ -5,7 +5,7 @@ contract BlindAuction{
     
     event OwnerSet(address oldOwner, address newOwner);
     event WinnerSet (address winner, uint value);
-    
+
     // the auctionManager is the seller
     address public auctionManager;
     uint deposit = 500 wei;
@@ -50,8 +50,8 @@ contract BlindAuction{
         
     }
 
-    function sealBid(uint _value, uint _nonce) private pure returns (bytes32){
-        return keccak256(abi.encode(_value, _nonce));
+    function sealBid(uint _value, uint _nonce) private  returns (bytes32){
+        return keccak256(abi.encode(_value, _nonce, msg.sender));
     }
     
     
@@ -69,6 +69,7 @@ contract BlindAuction{
     function reveal(uint _value, uint _nonce) public duringRevealing{
         // checks for the validity of bids
         // on reveal, each pariticapant will not pay, just reveal the values
+        require(msg.sender != auctionManager);
         if (biddings[msg.sender] == sealBid(_value, _nonce)){
             if (_value > highestBid){
             secondHighestBid = highestBid;
