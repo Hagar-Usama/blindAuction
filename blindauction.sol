@@ -55,12 +55,12 @@ contract BlindAuction{
     }
     
     
-    function bid(uint _value, uint _nonce) public payable duringBidding{
+    function bid(bytes32 sealedBid, uint _nonce) public payable duringBidding{
         // Participant pays bid once
         require(refunds[msg.sender] == false, 'Already participated' );
         require(msg.value == deposit,'Please make sure you pay the deposit');
         require(msg.sender != auctionManager, 'Auction Manager has no rights to bid');
-        bytes32 sealedBid = sealBid(_value, _nonce);
+        //bytes32 sealedBid = sealBid(_value, _nonce);
         biddings[msg.sender] = sealedBid;
         refunds[msg.sender] = true;
     
